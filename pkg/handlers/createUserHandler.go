@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *Server) HandleCreateUser() http.HandlerFunc {
@@ -36,26 +37,29 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 			for _, err := range err.(validator.ValidationErrors) {
 				if err.Tag() == "required" {
 					errors = append(errors, fmt.Sprintf("Field %s is required", err.Field()))
-					fmt.Printf("Field %s is required", err.Field())
 				}
-				fmt.Println(err.Tag())
-				fmt.Println(err.Type())
 			}
-			json, err := json.Marshal(errors)
-			if err != nil {
-				log.Println("Failed to parse errors to json")
-			}
-			fmt.Fprintf(w, string(json))
+
+			returnJSON(w, errors, http.StatusBadRequest)
 			return
 		}
 
 		_, err = s.UserRepository.Get(input.Email)
 
 		if err == nil {
-			returnError(w, "Error with given Email address already exists.", http.StatusBadRequest)
+			returnError(w, "User with given Email address already exists.", http.StatusBadRequest)
+			return
 		}
 
-		user, err := s.UserRepository.Create(input.FirstName, input.LastName, input.Password, input.Email)
+		if input.Password != input.Password2 {
+			returnError(w, "Passwords does not match", http.StatusBadRequest)
+			return
+		}
+
+		hashBytes, err := bcrypt.GenerateFromPassword([]byte(input.Password), 14)
+		passwordHash := string(hashBytes)
+
+		user, err := s.UserRepository.Create(input.FirstName, input.LastName, passwordHash, input.Email)
 		returnJSON(w, user, http.StatusCreated)
 	}
 }

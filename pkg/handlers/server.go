@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"notes-app/pkg/repositories"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Server struct {
+	Db             *sqlx.DB
 	UserRepository repositories.UserRepository
 }
 

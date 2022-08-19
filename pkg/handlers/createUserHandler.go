@@ -19,8 +19,6 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-
 		var input UserInput
 
 		validate := validator.New()
@@ -54,10 +52,10 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 		_, err = s.UserRepository.Get(input.Email)
 
 		if err == nil {
-			http.Error(w, "User with given Email addr already exists!", http.StatusBadRequest)
+			returnError(w, "Error with given Email address already exists.", http.StatusBadRequest)
 		}
+
 		user, err := s.UserRepository.Create(input.FirstName, input.LastName, input.Password, input.Email)
-		json, err := json.Marshal(user)
-		fmt.Fprintf(w, string(json))
+		returnJSON(w, user, http.StatusCreated)
 	}
 }

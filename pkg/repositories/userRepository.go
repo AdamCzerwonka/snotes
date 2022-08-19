@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"time"
@@ -14,10 +15,10 @@ type User struct {
 	LastName     string
 	PasswordHash string
 	Email        string
-	LastLogin    time.Time
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    time.Time
+	LastLogin    *sql.NullTime
+	CreatedAt    time.Time     `db:"created_at"`
+	UpdatedAt    time.Time     `db:"updated_at"`
+	DeletedAt    *sql.NullTime `db:"deleted_at"`
 }
 
 type UserRepository interface {
@@ -46,10 +47,8 @@ func (repo *InMemoryUserRepository) Create(FirstName string, LastName string, Pa
 		LastName:     LastName,
 		PasswordHash: Password,
 		Email:        Email,
-		LastLogin:    time.Now(),
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
-		DeletedAt:    time.Now(),
 	}
 
 	repo.users = append(repo.users, newUser)
@@ -84,14 +83,17 @@ func (repo *DbUserRespository) Get(email string) (*User, error) {
 }
 
 func (repo *DbUserRespository) Create(FirstName string, LastName string, Password string, Email string) (*User, error) {
-	result, err := repo.db.Exec("INSERT INTO users (firstname,lastname, passwordhash, email) VALUES (?, ?,?,?)", FirstName, LastName, Password, Email)
+	var id int
+	err := repo.db.Get(&id, "INSERT INTO users (firstname,lastname, passwordhash, email) VALUES ($1, $2,$3,$4) RETURNING id", FirstName, LastName, Password, Email)
 
 	if err != nil {
 		log.Println(err)
 	}
+
+	log.Println(id)
 	user := User{}
-	id, _ := result.LastInsertId()
-	err = repo.db.Get(&user, "SELECT * FROM users where id=$1", id)
+	err = repo.db.QueryRowx("SELECT * FROM users where id=$1", id).StructScan(&user)
+	log.Println(user)
 	if err != nil {
 		return nil, err
 	}

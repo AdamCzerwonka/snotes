@@ -56,6 +56,16 @@ func (repo *InMemoryUserRepository) Create(FirstName string, LastName string, Pa
 	return newUser, nil
 }
 
+func (repo *InMemoryUserRepository) GetById(id int) (*User, error) {
+	for _, user := range repo.users {
+		if user.Id == id {
+			return user, nil
+		}
+	}
+
+	return nil, errors.New("User with given id was not found")
+}
+
 type DbUserRespository struct {
 	db *sqlx.DB
 }

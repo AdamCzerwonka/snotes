@@ -1,6 +1,10 @@
 package services
 
 import (
+	"errors"
+	"log"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -35,4 +39,26 @@ func (auth *AuthService) GenerateToken(id int, firstName string) (string, error)
 	}
 
 	return tokenString, nil
+}
+
+func (auth *AuthService) ValidateTokenFromRequest(r *http.Request) (int, error) {
+	token := r.Header.Get("Authorization")
+	token = strings.Replace(token, "Bearer", "", 1)
+	token = strings.TrimSpace(token)
+	log.Println(token)
+	claims := &Claims{}
+
+	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(SECRET_KEY), nil
+	})
+
+	if err != nil {
+		return -1, err
+	}
+
+	if !tkn.Valid {
+		return -1, errors.New("Token not valid")
+	}
+
+	return claims.Id, nil
 }

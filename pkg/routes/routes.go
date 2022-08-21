@@ -3,6 +3,7 @@ package routes
 import (
 	"log"
 	"notes-app/pkg/handlers"
+	"notes-app/pkg/middleware"
 	"notes-app/pkg/repositories"
 	"notes-app/pkg/services"
 
@@ -24,6 +25,6 @@ func RegisterRoutes(r *mux.Router) {
 
 	r.HandleFunc("/", server.HandleHome())
 	r.HandleFunc("/api/user", server.HandleCreateUser()).Methods("POST")
-	r.HandleFunc("/api/notes", server.HandleCreateNote()).Methods("POST")
+	r.HandleFunc("/api/notes", middleware.IsLoggedIn(server.HandleCreateNote())).Methods("POST")
 	r.HandleFunc("/api/login", server.HandleLogin()).Methods("POST")
 }

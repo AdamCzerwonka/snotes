@@ -24,6 +24,7 @@ type User struct {
 type UserRepository interface {
 	Get(email string) (*User, error)
 	Create(FirstName string, LastName string, Password string, Email string) (*User, error)
+	GetById(id int) (*User, error)
 }
 
 type InMemoryUserRepository struct {
@@ -94,6 +95,16 @@ func (repo *DbUserRespository) Create(FirstName string, LastName string, Passwor
 	user := User{}
 	err = repo.db.QueryRowx("SELECT id,email,firstname,lastname,passwordhash,lastlogin,created_at,updated_at,deletedat FROM users WHERE id=$1", id).StructScan(&user)
 	log.Println(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (repo *DbUserRespository) GetById(id int) (*User, error) {
+	user := User{}
+	err := repo.db.QueryRowx("SELECT id,email,firstname,lastname,passwordhash,lastlogin,created_at,updated_at,deletedat FROM users WHERE id=$1 AND deletedat IS NULL", id).StructScan(&user)
 	if err != nil {
 		return nil, err
 	}

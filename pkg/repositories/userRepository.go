@@ -10,15 +10,15 @@ import (
 )
 
 type User struct {
-	Id           int
-	Firstname    string
-	LastName     string
-	PasswordHash string
-	Email        string
-	LastLogin    *sql.NullTime
+	Id           int           `db:"id"`
+	Firstname    string        `db:"firstname"`
+	LastName     string        `db:"lastname"`
+	PasswordHash string        `db:"passwordhash"`
+	Email        string        `db:"email"`
+	LastLogin    *sql.NullTime `db:"lastlogin"`
 	CreatedAt    time.Time     `db:"created_at"`
 	UpdatedAt    time.Time     `db:"updated_at"`
-	DeletedAt    *sql.NullTime `db:"deleted_at"`
+	DeletedAt    *sql.NullTime `db:"deletedat"`
 }
 
 type UserRepository interface {
@@ -92,7 +92,7 @@ func (repo *DbUserRespository) Create(FirstName string, LastName string, Passwor
 
 	log.Println(id)
 	user := User{}
-	err = repo.db.QueryRowx("SELECT * FROM users where id=$1", id).StructScan(&user)
+	err = repo.db.QueryRowx("SELECT id,email,firstname,lastname,passwordhash,lastlogin,created_at,updated_at,deletedat FROM users WHERE id=$1", id).StructScan(&user)
 	log.Println(user)
 	if err != nil {
 		return nil, err

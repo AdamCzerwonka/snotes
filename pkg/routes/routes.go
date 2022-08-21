@@ -4,6 +4,7 @@ import (
 	"log"
 	"notes-app/pkg/handlers"
 	"notes-app/pkg/repositories"
+	"notes-app/pkg/services"
 
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -18,9 +19,11 @@ func RegisterRoutes(r *mux.Router) {
 	}
 
 	server.Db = db
-
 	server.UserRepository = repositories.NewDbUserRepository(server.Db)
+	server.AuthService = services.AuthService{}
 
 	r.HandleFunc("/", server.HandleHome())
 	r.HandleFunc("/api/user", server.HandleCreateUser()).Methods("POST")
+	r.HandleFunc("/api/notes", server.HandleCreateNote()).Methods("POST")
+	r.HandleFunc("/api/login", server.HandleLogin()).Methods("POST")
 }

@@ -19,6 +19,13 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 		Password2 string `validate:"required"`
 	}
 
+	type UserResult struct {
+		Id        int
+		FirstName string
+		LastName  string
+		Email     string
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		var input UserInput
 
@@ -60,6 +67,12 @@ func (s *Server) HandleCreateUser() http.HandlerFunc {
 		passwordHash := string(hashBytes)
 
 		user, err := s.UserRepository.Create(input.FirstName, input.LastName, passwordHash, input.Email)
-		returnJSON(w, user, http.StatusCreated)
+		result := &UserResult{
+			Id:        user.Id,
+			FirstName: user.Firstname,
+			LastName:  user.LastName,
+			Email:     user.Email,
+		}
+		returnJSON(w, result, http.StatusCreated)
 	}
 }

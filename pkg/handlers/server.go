@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"notes-app/pkg/repositories"
+	"notes-app/pkg/services"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -11,6 +12,7 @@ import (
 type Server struct {
 	Db             *sqlx.DB
 	UserRepository repositories.UserRepository
+	AuthService    services.AuthService
 }
 
 func NewServer() *Server {

@@ -25,10 +25,15 @@ type UserRepository interface {
 	Get(email string) (*User, error)
 	Create(FirstName string, LastName string, Password string, Email string) (*User, error)
 	GetById(id int) (*User, error)
+	UpdateLastLogin(id int) error
 }
 
 type InMemoryUserRepository struct {
 	users []*User
+}
+
+func (repo *InMemoryUserRepository) UpdateLastLogin(id int) error {
+	return nil
 }
 
 func (repo *InMemoryUserRepository) Get(email string) (*User, error) {
@@ -120,4 +125,9 @@ func (repo *DbUserRespository) GetById(id int) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+func (repo *DbUserRespository) UpdateLastLogin(id int) error {
+	_, err := repo.db.Exec("UPDATE users SET lastlogin=$1 WHERE id=$2", time.Now(), id)
+	return err
 }

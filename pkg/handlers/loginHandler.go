@@ -40,6 +40,11 @@ func (s *Server) HandleLogin() http.HandlerFunc {
 			return
 		}
 
+		if err = s.UserRepository.UpdateLastLogin(user.Id); err != nil {
+			log.Println(err)
+			return
+		}
+
 		returnJSON(w, map[string]string{"token": token}, http.StatusOK)
 	}
 }

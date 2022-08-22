@@ -13,6 +13,7 @@ type Server struct {
 	Db             *sqlx.DB
 	UserRepository repositories.UserRepository
 	AuthService    services.AuthService
+	NotesService   services.NotesService
 }
 
 func NewServer() *Server {

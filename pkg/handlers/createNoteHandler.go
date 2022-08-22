@@ -20,12 +20,18 @@ func (s *Server) HandleCreateNote() http.HandlerFunc {
 			return
 		}
 
-		user, err := s.UserRepository.GetById(loggedInUserId)
+		_, err = s.UserRepository.GetById(loggedInUserId)
 		if err != nil {
 			log.Println(err)
 		}
 
-		returnJSON(w, user, http.StatusOK)
+		note, err := s.NotesService.Create(input.Title, input.Content, loggedInUserId)
+		if err != nil {
+			returnError(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		returnJSON(w, note, http.StatusOK)
 
 	}
 }

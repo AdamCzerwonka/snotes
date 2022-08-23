@@ -22,9 +22,14 @@ func RegisterRoutes(r *mux.Router) {
 	server.Db = db
 	server.UserRepository = repositories.NewDbUserRepository(server.Db)
 	server.AuthService = services.AuthService{}
+	server.NotesService = services.NewInMemoryNotesService()
 
 	r.HandleFunc("/", server.HandleHome())
 	r.HandleFunc("/api/user", server.HandleCreateUser()).Methods("POST")
 	r.HandleFunc("/api/notes", middleware.IsLoggedIn(server.HandleCreateNote())).Methods("POST")
+	r.HandleFunc("/api/notes", middleware.IsLoggedIn(server.HandleGetAllNotes())).Methods("GET")
+	r.HandleFunc("/api/notes/{note_id}", middleware.IsLoggedIn(server.HandlerGetNote())).Methods("GET")
+	r.HandleFunc("/api/notes/{note_id}", middleware.IsLoggedIn(server.HandleDeleteNote())).Methods("DELETE")
+	r.HandleFunc("/api/notes/{note_id}", middleware.IsLoggedIn(server.HandleUpdateNote())).Methods("PUT")
 	r.HandleFunc("/api/login", server.HandleLogin()).Methods("POST")
 }

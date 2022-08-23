@@ -21,6 +21,7 @@ type NotesService interface {
 	GetAll(userId int) []*Note
 	Get(userId int, noteId int) (*Note, error)
 	Delete(noteId int) error
+	Update(noteId int, title string, content string) (*Note, error)
 }
 
 type InMemoryNotesService struct {
@@ -80,4 +81,18 @@ func (s *InMemoryNotesService) Delete(noteId int) error {
 	s.notes = append(s.notes[:noteToDelete], s.notes[noteToDelete+1:]...)
 	return nil
 
+}
+
+func (s *InMemoryNotesService) Update(noteId int, title string, content string) (*Note, error) {
+	var updatedNote *Note
+	for _, note := range s.notes {
+		if note.Id == noteId {
+			note.Title = title
+			note.Content = content
+			note.UpdatedAt = time.Now()
+			updatedNote = note
+		}
+	}
+
+	return updatedNote, nil
 }

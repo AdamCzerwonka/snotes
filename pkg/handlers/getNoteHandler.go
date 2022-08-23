@@ -23,6 +23,5 @@ func (s *Server) HandlerGetNote() http.HandlerFunc {
 		}
 
 		returnJSON(w, note, http.StatusOK)
-
 	}
 }

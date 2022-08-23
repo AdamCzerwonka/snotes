@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type Note struct {
 type NotesService interface {
 	Create(title string, content string, ownerId int) (*Note, error)
 	GetAll(userId int) []*Note
+	Get(userId int, noteId int) (*Note, error)
 }
 
 type InMemoryNotesService struct {
@@ -53,4 +55,14 @@ func (s *InMemoryNotesService) GetAll(userId int) []*Note {
 		}
 	}
 	return result
+}
+
+func (s *InMemoryNotesService) Get(userId int, noteId int) (*Note, error) {
+	for _, note := range s.notes {
+		if note.OwnerId == userId && note.Id == noteId {
+			return note, nil
+		}
+	}
+
+	return nil, errors.New("Note not find")
 }

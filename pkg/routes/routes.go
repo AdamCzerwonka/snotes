@@ -29,5 +29,5 @@ func RegisterRoutes(r *mux.Router) {
 	r.HandleFunc("/api/notes", middleware.IsLoggedIn(server.HandleCreateNote())).Methods("POST")
 	r.HandleFunc("/api/notes", middleware.IsLoggedIn(server.HandleGetAllNotes())).Methods("GET")
 	r.HandleFunc("/api/login", server.HandleLogin()).Methods("POST")
-
+	r.HandleFunc("/api/notes/{note_id}", middleware.IsLoggedIn(server.HandlerGetNote())).Methods("GET")
 }

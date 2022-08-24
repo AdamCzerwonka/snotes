@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -45,7 +44,6 @@ func (auth *AuthService) ValidateTokenFromRequest(r *http.Request) (int, error) 
 	token := r.Header.Get("Authorization")
 	token = strings.Replace(token, "Bearer", "", 1)
 	token = strings.TrimSpace(token)
-	log.Println(token)
 	claims := &Claims{}
 
 	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {

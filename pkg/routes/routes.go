@@ -22,7 +22,7 @@ func RegisterRoutes(r *mux.Router) {
 	server.Db = db
 	server.UserRepository = repositories.NewDbUserRepository(server.Db)
 	server.AuthService = services.AuthService{}
-	server.NotesService = services.NewInMemoryNotesService()
+	server.NotesService = services.NewDbNotesService(server.Db)
 
 	r.HandleFunc("/", server.HandleHome())
 	r.HandleFunc("/api/user", server.HandleCreateUser()).Methods("POST")

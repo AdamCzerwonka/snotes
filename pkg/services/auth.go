@@ -10,9 +10,14 @@ import (
 )
 
 const EXPIERATION_PERIOD = 1
-const SECRET_KEY string = "very_secret_password_123!"
 
-type AuthService struct{}
+type AuthService struct {
+	jwtSecret string
+}
+
+func NewAuthService(jwtSecret string) AuthService {
+	return AuthService{jwtSecret: jwtSecret}
+}
 
 type Claims struct {
 	FirstName string `json:"firstName"`
@@ -32,7 +37,7 @@ func (auth *AuthService) GenerateToken(id int, firstName string) (string, error)
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(SECRET_KEY))
+	tokenString, err := token.SignedString([]byte(auth.jwtSecret))
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +52,7 @@ func (auth *AuthService) ValidateTokenFromRequest(r *http.Request) (int, error) 
 	claims := &Claims{}
 
 	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(SECRET_KEY), nil
+		return []byte(auth.jwtSecret), nil
 	})
 
 	if err != nil {

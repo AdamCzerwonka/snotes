@@ -14,6 +14,8 @@ import (
 
 func RegisterRoutes(r *mux.Router) {
 	server := handlers.NewServer()
+	server.Config = services.LoadConfig("config.json")
+
 	db, err := sqlx.Connect("postgres", "user=postgres dbname=notes-app sslmode=disable password=example")
 	if err != nil {
 		log.Fatalln(err)
@@ -21,7 +23,7 @@ func RegisterRoutes(r *mux.Router) {
 
 	server.Db = db
 	server.UserRepository = repositories.NewDbUserRepository(server.Db)
-	server.AuthService = services.AuthService{}
+	server.AuthService = services.NewAuthService(server.Config.Get("JwtSecretKey"))
 	server.NotesService = services.NewDbNotesService(server.Db)
 
 	r.HandleFunc("/", server.HandleHome())

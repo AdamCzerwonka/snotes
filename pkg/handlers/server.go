@@ -14,6 +14,7 @@ type Server struct {
 	UserRepository repositories.UserRepository
 	AuthService    services.AuthService
 	NotesService   services.NotesService
+	Config         services.ConfigProvider
 }
 
 func NewServer() *Server {
